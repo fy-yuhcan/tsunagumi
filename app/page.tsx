@@ -1,101 +1,174 @@
-import Image from "next/image";
+'use client'
 
-export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+import { useState } from 'react'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Button } from "@/components/ui/button"
+import { PlusCircle, MapPin, Utensils, Building } from 'lucide-react'
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
-  );
+interface DetailItem {
+  id: string
+  name: string
+  description: string
 }
+
+export default function PlanDetails() {
+  const [touristSpots, setTouristSpots] = useState<DetailItem[]>([])
+  const [foodShoppingSpots, setFoodShoppingSpots] = useState<DetailItem[]>([])
+  const [accommodations, setAccommodations] = useState<DetailItem[]>([])
+
+  const addItem = (category: 'tourist' | 'foodShopping' | 'accommodation') => {
+    const newItem: DetailItem = {
+      id: Date.now().toString(),
+      name: '',
+      description: '',
+    }
+    switch (category) {
+      case 'tourist':
+        setTouristSpots([...touristSpots, newItem])
+        break
+      case 'foodShopping':
+        setFoodShoppingSpots([...foodShoppingSpots, newItem])
+        break
+      case 'accommodation':
+        setAccommodations([...accommodations, newItem])
+        break
+    }
+  }
+
+  const updateItem = (
+    category: 'tourist' | 'foodShopping' | 'accommodation',
+    id: string,
+    field: 'name' | 'description',
+    value: string
+  ) => {
+    const updateState = (prevState: DetailItem[]) =>
+      prevState.map((item) =>
+        item.id === id ? { ...item, [field]: value } : item
+      )
+
+    switch (category) {
+      case 'tourist':
+        setTouristSpots(updateState)
+        break
+      case 'foodShopping':
+        setFoodShoppingSpots(updateState)
+        break
+      case 'accommodation':
+        setAccommodations(updateState)
+        break
+    }
+  }
+
+  const renderDetailCards = (
+    items: DetailItem[],
+    category: 'tourist' | 'foodShopping' | 'accommodation'
+  ) => (
+    <div className="space-y-4">
+      {items.map((item) => (
+        <Card key={item.id}>
+          <CardHeader>
+            <CardTitle>
+              <Input
+                placeholder={`名前を入力`}
+                value={item.name}
+                onChange={(e) =>
+                  updateItem(category, item.id, 'name', e.target.value)
+                }
+              />
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Textarea
+              placeholder={`詳細を入力`}
+              value={item.description}
+              onChange={(e) =>
+                updateItem(category, item.id, 'description', e.target.value)
+              }
+            />
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  )
+
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold text-center mb-8 text-primary underline decoration-wavy decoration-primary underline-offset-8">
+        旅行プラン詳細
+      </h1>
+      <Tabs defaultValue="tourist" className="w-full">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="tourist" className="flex items-center gap-2">
+            <MapPin className="w-4 h-4" />
+            観光地
+          </TabsTrigger>
+          <TabsTrigger value="foodShopping" className="flex items-center gap-2">
+            <Utensils className="w-4 h-4" />
+            グルメ・ショッピング
+          </TabsTrigger>
+          <TabsTrigger value="accommodation" className="flex items-center gap-2">
+            <Building className="w-4 h-4" />
+            宿
+          </TabsTrigger>
+        </TabsList>
+        <TabsContent value="tourist">
+          <Card>
+            <CardHeader>
+              <CardTitle>観光地</CardTitle>
+              <CardDescription>訪れたい観光スポットを追加しましょう。</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {renderDetailCards(touristSpots, 'tourist')}
+            </CardContent>
+            <CardFooter>
+              <Button onClick={() => addItem('tourist')} variant="outline" className="w-full">
+                <PlusCircle className="w-4 h-4 mr-2" />
+                観光地を追加
+              </Button>
+            </CardFooter>
+          </Card>
+        </TabsContent>
+        <TabsContent value="foodShopping">
+          <Card>
+            <CardHeader>
+              <CardTitle>グルメ・ショッピング</CardTitle>
+              <CardDescription>食事やショッピングのスポットを追加しましょう。</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {renderDetailCards(foodShoppingSpots, 'foodShopping')}
+            </CardContent>
+            <CardFooter>
+              <Button onClick={() => addItem('foodShopping')} variant="outline" className="w-full">
+                <PlusCircle className="w-4 h-4 mr-2" />
+                グルメ・ショッピングスポットを追加
+              </Button>
+            </CardFooter>
+          </Card>
+        </TabsContent>
+        <TabsContent value="accommodation">
+          <Card>
+            <CardHeader>
+              <CardTitle>宿</CardTitle>
+              <CardDescription>宿泊先の情報を追加しましょう。</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {renderDetailCards(accommodations, 'accommodation')}
+            </CardContent>
+            <CardFooter>
+              <Button onClick={() => addItem('accommodation')} variant="outline" className="w-full">
+                <PlusCircle className="w-4 h-4 mr-2" />
+                宿を追加
+              </Button>
+            </CardFooter>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
+  )
+}
+
+
